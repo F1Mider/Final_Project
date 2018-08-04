@@ -1,5 +1,6 @@
 import datetime
 import numpy as np
+import random
 
 
 def load_flight_data() -> dict:
@@ -10,42 +11,146 @@ def load_flight_data() -> dict:
     :return: A dictionary with hour as key and a list of flights in that hour.
     '''
     all_flights = initiate_dict_by_hour()
-    flights01 = []
-    flights01.append(Flight(datetime.time(1,13), 168))
-    flights01.append(Flight(datetime.time(1,26), 168))
-    all_flights[1] = flights01
-    flights03 = []
-    flights03.append(Flight(datetime.time(3,46), 146))
-    all_flights[3] = flights03
-    flights13 = []
-    flights13.append(Flight(datetime.time(13, 0), 300))
-    flights13.append(Flight(datetime.time(13, 5), 300))
-    flights13.append(Flight(datetime.time(13, 13), 300))
-    flights13.append(Flight(datetime.time(13, 20), 400))
-    flights13.append(Flight(datetime.time(13, 35), 300))
-    flights13.append(Flight(datetime.time(13, 45), 350))
-    flights13.append(Flight(datetime.time(13, 50), 250))
-    flights13.append(Flight(datetime.time(13, 57), 150))
-    all_flights[13] = flights13
-    flights14 = []
-    flights14.append(Flight(datetime.time(14, 3), 300))
-    flights14.append(Flight(datetime.time(14, 8), 300))
-    flights14.append(Flight(datetime.time(14, 20), 300))
-    flights14.append(Flight(datetime.time(14, 25), 400))
-    flights14.append(Flight(datetime.time(14, 33), 300))
-    flights14.append(Flight(datetime.time(14, 45), 350))
-    flights14.append(Flight(datetime.time(14, 50), 250))
-    flights14.append(Flight(datetime.time(14, 55), 150))
-    all_flights[14] = flights14
+    all_flights[0] = None
+    all_flights[1] = []
+    all_flights[1].append(Flight(datetime.time(1, 13), 168))
+    all_flights[1].append(Flight(datetime.time(1, 26), 168))
+    all_flights[2] = None
+    all_flights[3] = []
+    all_flights[3].append(Flight(datetime.time(3, 46), 146))
+    all_flights[4] = []
+    all_flights[4].append(Flight(datetime.time(4, 28), 158))
+    all_flights[4].append(Flight(datetime.time(4, 59), 173))
+    all_flights[5] = []
+    all_flights[5].append(Flight(datetime.time(5, 33), 117))
+    all_flights[6] = []
+    all_flights[6].append(Flight(datetime.time(6, 28), 306))
+    all_flights[6].append(Flight(datetime.time(6, 54), 278))
+    all_flights[7] = None
+    all_flights[8] = []
+    all_flights[8].append(Flight(datetime.time(8, 33), 233))
+    all_flights[9] = []
+    all_flights[9].append(Flight(datetime.time(9, 13), 223))
+    all_flights[9].append(Flight(datetime.time(9, 40), 326))
+    all_flights[9].append(Flight(datetime.time(9, 43), 156))
+    all_flights[10] = []
+    all_flights[10].append(Flight(datetime.time(10, 12), 253))
+    all_flights[10].append(Flight(datetime.time(10, 31), 213))
+    all_flights[10].append(Flight(datetime.time(10, 33), 89))
+    all_flights[11] = []
+    all_flights[11].append(Flight(datetime.time(11, 00), 253))
+    all_flights[11].append(Flight(datetime.time(11, 22), 213))
+    all_flights[11].append(Flight(datetime.time(11, 35), 199))
+    all_flights[12] = []
+    all_flights[12].append(Flight(datetime.time(12, 8), 174))
+    all_flights[12].append(Flight(datetime.time(12, 14), 126))
+    all_flights[12].append(Flight(datetime.time(12, 33), 243))
+    all_flights[12].append(Flight(datetime.time(12, 42), 256))
+    all_flights[12].append(Flight(datetime.time(12, 49), 154))
+    all_flights[12].append(Flight(datetime.time(12, 58), 172))
+    all_flights[13] = []
+    all_flights[13].append(Flight(datetime.time(13, 3), 184))
+    all_flights[13].append(Flight(datetime.time(13, 9), 332))
+    all_flights[13].append(Flight(datetime.time(13, 14), 194))
+    all_flights[13].append(Flight(datetime.time(13, 19), 165))
+    all_flights[13].append(Flight(datetime.time(13, 25), 254))
+    all_flights[13].append(Flight(datetime.time(13, 27), 396))
+    all_flights[13].append(Flight(datetime.time(13, 39), 228))
+    all_flights[13].append(Flight(datetime.time(13, 43), 176))
+    all_flights[13].append(Flight(datetime.time(13, 48), 289))
+    all_flights[13].append(Flight(datetime.time(13, 52), 154))
+    all_flights[13].append(Flight(datetime.time(13, 55), 287))
+    all_flights[13].append(Flight(datetime.time(13, 59), 215))
+    all_flights[14] = []
+    all_flights[14].append(Flight(datetime.time(14, 4), 273))
+    all_flights[14].append(Flight(datetime.time(14, 9), 265))
+    all_flights[14].append(Flight(datetime.time(14, 13), 188))
+    all_flights[14].append(Flight(datetime.time(14, 16), 265))
+    all_flights[14].append(Flight(datetime.time(14, 26), 168))
+    all_flights[14].append(Flight(datetime.time(14, 32), 233))
+    all_flights[14].append(Flight(datetime.time(14, 39), 322))
+    all_flights[14].append(Flight(datetime.time(14, 43), 199))
+    all_flights[14].append(Flight(datetime.time(14, 49), 208))
+    all_flights[14].append(Flight(datetime.time(14, 55), 200))
+    all_flights[15] = []
+    all_flights[15].append(Flight(datetime.time(15, 16), 229))
+    all_flights[15].append(Flight(datetime.time(15, 22), 180))
+    all_flights[15].append(Flight(datetime.time(15, 28), 227))
+    all_flights[15].append(Flight(datetime.time(15, 34), 232))
+    all_flights[15].append(Flight(datetime.time(15, 41), 384))
+    all_flights[15].append(Flight(datetime.time(15, 47), 276))
+    all_flights[15].append(Flight(datetime.time(15, 51), 243))
+    all_flights[15].append(Flight(datetime.time(15, 55), 235))
+    all_flights[15].append(Flight(datetime.time(15, 58), 299))
+    all_flights[16] = []
+    all_flights[16].append(Flight(datetime.time(16, 7), 238))
+    all_flights[16].append(Flight(datetime.time(16, 14), 68))
+    all_flights[16].append(Flight(datetime.time(16, 22), 243))
+    all_flights[16].append(Flight(datetime.time(16, 31), 154))
+    all_flights[16].append(Flight(datetime.time(16, 37), 148))
+    all_flights[16].append(Flight(datetime.time(16, 43), 97))
+    all_flights[16].append(Flight(datetime.time(16, 53), 382))
+    all_flights[17] = []
+    all_flights[17].append(Flight(datetime.time(17, 17), 43))
+    all_flights[17].append(Flight(datetime.time(17, 28), 220))
+    all_flights[17].append(Flight(datetime.time(17, 34), 234))
+    all_flights[17].append(Flight(datetime.time(17, 42), 275))
+    all_flights[18] = []
+    all_flights[18].append(Flight(datetime.time(18, 14), 155))
+    all_flights[18].append(Flight(datetime.time(18, 19), 211))
+    all_flights[18].append(Flight(datetime.time(18, 26), 178))
+    all_flights[18].append(Flight(datetime.time(18, 37), 213))
+    all_flights[18].append(Flight(datetime.time(18, 41), 264))
+    all_flights[18].append(Flight(datetime.time(18, 44), 193))
+    all_flights[18].append(Flight(datetime.time(18, 49), 237))
+    all_flights[18].append(Flight(datetime.time(18, 53), 256))
+    all_flights[18].append(Flight(datetime.time(18, 57), 223))
+    all_flights[19] = []
+    all_flights[19].append(Flight(datetime.time(19, 4), 177))
+    all_flights[19].append(Flight(datetime.time(19, 9), 165))
+    all_flights[19].append(Flight(datetime.time(19, 22), 334))
+    all_flights[19].append(Flight(datetime.time(19, 31), 231))
+    all_flights[19].append(Flight(datetime.time(19, 38), 187))
+    all_flights[19].append(Flight(datetime.time(19, 54), 292))
+    all_flights[20] = []
+    all_flights[20].append(Flight(datetime.time(20, 14), 334))
+    all_flights[20].append(Flight(datetime.time(20, 34), 403))
+    all_flights[21] = []
+    all_flights[21].append(Flight(datetime.time(21, 17), 241))
+    all_flights[21].append(Flight(datetime.time(21, 43), 208))
+    all_flights[22] = []
+    all_flights[22].append(Flight(datetime.time(22, 8), 206))
+    all_flights[23] = []
+    all_flights[23].append(Flight(datetime.time(23, 24), 186))
+    all_flights[23].append(Flight(datetime.time(23, 34), 168))
+    all_flights[23].append(Flight(datetime.time(23, 55), 118))
+
     return all_flights
 
 
 def load_booths_data():
     all_booths = initiate_dict_by_hour()
-    all_booths[1] = [5,6]
-    all_booths[3] = [2,2]
+    all_booths[1] = [5, 6]
+    all_booths[3] = [2, 2]
+    all_booths[4] = [4, 3]
+    all_booths[5] = [8, 6]
+    all_booths[6] = [8, 7]
+    all_booths[8] = [5, 4]
+    all_booths[9] = [6, 5]
+    all_booths[10] = [7, 5]
+    all_booths[11] = [11, 9]
+    all_booths[12] = [8, 7]
     all_booths[13] = [13, 11]
-    all_booths[14] = [13, 10]
+    all_booths[14] = [12, 11]
+    all_booths[15] = [13, 12]
+    all_booths[16] = [14, 13]
+    all_booths[17] = [8, 8]
+    all_booths[18] = [14, 12]
+    all_booths[19] = [10, 8]
+    all_booths[20] = [6, 5]
+    all_booths[21] = [7, 6]
+    all_booths[22] = [5, 5]
+    all_booths[23] = [6, 5]
     return all_booths
 
 
@@ -97,12 +202,13 @@ class Passenger:
         if self.is_citizen:
             a = -1
             while a<=0:
-                a = np.random.normal(1.0, 0.5)
+                a = np.random.normal(0.6, 0.15)
             return a
         else:
             a = -1
             while a <= 0:
-                a = np.random.normal(2.5, 0.4)
+                # a = random.choice([np.random.normal(0.8, 0.25),np.random.normal(1.5, 0.4)])
+                a = np.random.normal(1.0, 0.5)
             return a
 
 
@@ -272,9 +378,13 @@ if __name__ == '__main__':
                                 time_non_citizen[processing.flight.arrival_time.hour].append(wait_time)
             timespan += .1
             timespan = cleanup_float(timespan)
+    hour = 24
     timespan = 0
     while not (citizen.isEmpty() and non_citizen.isEmpty()):
         print(hour)
+        if (timespan == 60):
+            timespan = 0
+            hour += 1
         for booth in booths:
             if timespan >= booth.next:
                 if booth.open:
@@ -282,6 +392,7 @@ if __name__ == '__main__':
                         if not citizen.isEmpty():
                             processing = citizen.dequeue()
                             wait_time = booth.process_passenger(processing, timespan, hour)
+                            print(wait_time)
                             time_citizen[processing.flight.arrival_time.hour].append(wait_time)
                     else:
                         if not non_citizen.isEmpty():
@@ -290,7 +401,6 @@ if __name__ == '__main__':
                             time_non_citizen[processing.flight.arrival_time.hour].append(wait_time)
         timespan += .1
         timespan = cleanup_float(timespan)
-        hour += 1
     print(time_citizen)
     print(time_non_citizen)
 
@@ -312,19 +422,19 @@ if __name__ == '__main__':
                   + str(max_time(time_non_citizen[hour] + time_citizen[hour])))
             print()
             print(str(sum(i <= 15 for i in time_citizen[hour]) + sum(
-                i <= 15 for i in time_citizen[1])) + " passengers clear between 0-15 mins")
+                i <= 15 for i in time_non_citizen[hour])) + " passengers clear between 0-15 mins")
             print(str(sum(15 < i <= 30 for i in time_citizen[hour]) + sum(
-                15 < i <= 30 for i in time_citizen[1])) + " passengers clear between 16-30 mins")
+                15 < i <= 30 for i in time_non_citizen[hour])) + " passengers clear between 16-30 mins")
             print(str(sum(30 < i <= 45 for i in time_citizen[hour]) + sum(
-                30 < i <= 45 for i in time_citizen[1])) + " passengers clear between 31-45 mins")
+                30 < i <= 45 for i in time_non_citizen[hour])) + " passengers clear between 31-45 mins")
             print(str(sum(45 < i <= 60 for i in time_citizen[hour]) + sum(
-                45 < i <= 60 for i in time_citizen[1])) + " passengers clear between 46-60 mins")
+                45 < i <= 60 for i in time_non_citizen[hour])) + " passengers clear between 46-60 mins")
             print(str(sum(60 < i <= 90 for i in time_citizen[hour]) + sum(
-                60 < i <= 90 for i in time_citizen[1])) + " passengers clear between 61-90 mins")
+                60 < i <= 90 for i in time_non_citizen[hour])) + " passengers clear between 61-90 mins")
             print(str(sum(90 < i <= 120 for i in time_citizen[hour]) + sum(
-                90 < i <= 120 for i in time_citizen[1])) + " passengers clear between 91-120 mins")
+                90 < i <= 120 for i in time_non_citizen[hour])) + " passengers clear between 91-120 mins")
             print(str(sum(i > 120 for i in time_citizen[hour]) + sum(
-                i > 120 for i in time_citizen[1])) + " passengers clear over 121 mins")
+                i > 120 for i in time_non_citizen[hour])) + " passengers clear over 121 mins")
         else:
             print("No flight arrived between "+ str(hour) + " and " + str(hour+1))
         print(" ")

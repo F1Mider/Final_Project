@@ -1,15 +1,16 @@
 import datetime
 import numpy as np
-import random
 
 
 def load_flight_data() -> dict:
-    '''
+    """
     This function loads the flight schedule into the program with number of passengers on each flight. By changing the
     schedule, it is possible to simulate different situations of different airports.
+    The current flight schedule is predicted based on flights arrived in Chicago O'Hare on August 2nd, 2018. The
+    number of passengers is predicted based on aircraft type and destination.
 
     :return: A dictionary with hour as key and a list of flights in that hour.
-    '''
+    """
     all_flights = initiate_dict_by_hour()
     all_flights[0] = None
     all_flights[1] = []
@@ -128,9 +129,14 @@ def load_flight_data() -> dict:
     return all_flights
 
 
-def load_booths_data():
+def load_booths_data() -> dict:
+    """
+    This function returns the booths opened in each hour. The ratio of booths for citizens vs non-citizens is predicted.
+
+    :return: A dictionary with hour as key and a list of booths opened for citizens and non-citizens, respectively.
+    """
     all_booths = initiate_dict_by_hour()
-    all_booths[1] = [5, 6]
+    all_booths[1] = [6, 5]
     all_booths[3] = [2, 2]
     all_booths[4] = [4, 3]
     all_booths[5] = [8, 6]
@@ -155,23 +161,30 @@ def load_booths_data():
 
 
 def initiate_dict_by_hour(param_type=None) -> dict:
+    """
+    This function generates an empty dictionary with 24 slots regarding 24 hours of a day.
+
+    :param param_type: The type that the empty dictionary will have by default. Type list for an empty list for each
+                        hour; type int for 0 for each hour. By default each hour will be filled with None.
+    :return: A dictionary with 24 keys representing 24 hours and default empty value of specified parameter type.
+    """
     dictionary = {}
-    for hour in range(0,24):
+    for each_hour in range(0, 24):
         if param_type == list:
-            dictionary[hour] = []
+            dictionary[each_hour] = []
         elif param_type == int:
-            dictionary[hour] = 0
+            dictionary[each_hour] = 0
         else:
-            dictionary[hour] = None
+            dictionary[each_hour] = None
     return dictionary
 
 
 class Passenger:
-    '''
+    """
     The Passenger class is used to store information about an arriving passenger.
-    '''
-    def __init__(self, arrived_flight: bool, is_citizen: bool):
-        '''
+    """
+    def __init__(self, arrived_flight: "Flight", is_citizen: bool):
+        """
         Parameters:
         is_processed: Boolean value of whether the passenger has cleared immigration
         is_citizen: Boolean value of whether the passenger is a US Citizen
@@ -180,28 +193,38 @@ class Passenger:
 
         :param arrived_flight: The Flight on which passenger is arriving on
         :param is_citizen: Whether the citizen is a US Citizen or not
-        '''
+        """
         self.is_processed = False
         self.is_citizen = is_citizen
         self.flight = arrived_flight
         self.time_processed = None
 
     def process(self, time: float) -> float:
-        '''
+        """
+        This function will record the time this passenger is called by the officer, and how long it takes to process
+        this passenger..
 
         :param time: The timestamp in 0.1 minutes of when the passenger is called by the officer.
-        :return: The time in 0.1 minutes of passenger processed
-        '''
+        :return: A float number of time taken to process this passenger, in 0.1 minutes.
+        """
         if not self.is_processed:
             self.is_processed = True
             self.time_processed = time
-            p = self.process_time()
+            p = self.process_time
             return cleanup_float(p)
 
-    def process_time(self):
+    @property
+    def process_time(self) -> float:
+        """
+        This function generates a random number for time taken to process each passenger. It utilizes different
+        distribution for citizens vs non-citizens. Note that this distribution is a predicted model and may vary from
+        real life.
+
+        :return: A float number of time taken to process this passenger, in 0.1 minutes.
+        """
         if self.is_citizen:
             a = -1
-            while a<=0:
+            while a <= 0:
                 a = np.random.normal(0.6, 0.15)
             return a
         else:
@@ -213,7 +236,20 @@ class Passenger:
 
 
 class Flight:
-    def __init__(self, arrival, count):
+    """
+    This class stores information of a flight, which will be used in other calculations.
+    """
+    def __init__(self, arrival: datetime.time, count: int):
+        """
+        Parameters:
+        arrival_time: hour and minute when the aircraft arrived at the terminal
+        passenger_count: total number of passengers on this flight
+        citizen_count: total number of U.S. citizens on this flight, generated randomly
+        non_citizen_count: total number of non-U.S. citizens on this flight
+
+        :param arrival: datetime.time of time when the aircraft arrived at the terminal
+        :param count: total number of passengers on this flight
+        """
         self.arrival_time = arrival
         self.passenger_count = count
         self.citizen_count = int(self.passenger_count * get_citizen_ratio())
@@ -221,28 +257,66 @@ class Flight:
 
 
 class Booth:
+    """
+    This class stores information of a booth in airport.
+    """
 
-    def __init__(self, processing_citizen, opening = False, next_time = 0):
+    def __init__(self, processing_citizen: bool, opening=False, next_time=0):
+        """
+        Parameters:
+        open: a boolean value of whether the booth is opened or not
+        process_citizen: a boolean value of whether this booth is processing citizens.
+        next: the timestamp when this booth is able to process next passenger
+
+        :param processing_citizen: A boolean value of whether the booth is processing citizen. Required when creating
+                                    a new instance of this class.
+        :param opening: A boolean value of whether the booth is opened with default value False.
+        :param next_time: The timestamp, in 0.1 minutes, when this booth is able to process next passenger, with
+                           default value 0.
+        """
         self.open = opening
         self.process_citizen = processing_citizen
         self.next = next_time
 
-    def open_booth(self, time):
+    def open_booth(self, time: float):
+        """
+        This function will open the booth and record the new time available to process next passenger..
+
+        :param time: Timestamp, in 0.1 minutes, when the booth is opened.
+        """
         if not self.open:
             self.next = time
             self.open = True
 
     def close_booth(self):
+        """
+        This function will shut down the booth
+        """
         if self.open:
             self.open = False
 
     def change_to_citizen(self):
+        """
+        This function will convert the booth to process citizens.
+        """
         self.process_citizen = True
 
     def change_to_non_citizen(self):
+        """
+        This function will convert the booth to process non-citizens.
+        """
         self.process_citizen = False
 
-    def process_passenger(self, passenger, time, current_hour):
+    def process_passenger(self, passenger: Passenger, time: float, current_hour: int):
+        """
+        This function is called when the booth is processing the next passenger. It records the time when this booth is
+        available again and the waiting time of the current passenger.
+
+        :param passenger: The passenger that is processed in this booth.
+        :param time: The timestamp, in 0.1 minutes, at which the passenger is called.
+        :param current_hour: The hour when the passenger is called
+        :return: The total waiting time for the passenger to be called.
+        """
         next_time = passenger.process(time) + time
         if next_time >= 60:
             self.next = cleanup_float(next_time - 60)
@@ -255,68 +329,131 @@ class Booth:
 
 class Queue:
     def __init__(self):
-        """ create an empty queue """
+        """
+        Thi function defines an empty queue.
+        """
         self.queue = []
 
-    def isEmpty(self):
-        '''Check if there is passengers in the current waiting queue'''
+    def is_empty(self) -> bool:
+        """
+        This function returns whether the queue is empty.
+
+        :return: A boolean value of whether the queue is empty.
+        """
         return self.queue == []
 
     def enqueue(self, item):
-        ''' add new passenger to the end of queue'''
+        """
+        Adding a new object to the end of the queue
+
+        :param item: The item to be added to the queue
+        """
         self.queue.insert(0, item)
 
     def enqueue_list(self, items):
-        ''' add a list of items to the end of queue'''
+        """
+        Adding a list to the end of the queue, with the first item in list as the first enqueue.
+
+        :param items: The list to be added to the queue.
+        """
         for item in items:
             self.queue.insert(0, item)
 
     def dequeue(self):
-        '''remove the passenger from the beginning of the queue'''
+        """
+        Removes the first item in queue and returns its value.
+
+        :return: The first item in queue.
+        """
         return self.queue.pop()
 
     def size(self):
-        '''return the number of items in the queue'''
+        """
+        Returns the number of items in the queue.
+
+        :return: The number of items in the queue.
+        """
         return len(self.queue)
 
 
-def average_time(time, pax):
-    if pax == 0:
+def average_time(time: list, total_passengers: int) -> float:
+    """
+    Find out the average waiting time from the given list of waiting times and number of passengers.
+
+    :param time: A list of waiting times.
+    :param total_passengers: The number of passengers to be calculated.
+    :return: The average waiting time for the given group of passengers.
+    """
+    if total_passengers == 0:
         return 0
-    return sum(time)/pax
+    return cleanup_float(sum(time)/total_passengers)
 
 
-def max_time(time):
+def max_time(time: list):
+    """
+    Find the maximum waiting time in the given list of times.
+
+    :param time: A list of waiting times.
+    :return: The maximum value in the list
+    """
     return max(time)
 
 
 def get_citizen_ratio():
+    """
+    This function generates a random number of ratio of citizens vs non-citizens. The distribution is predicted and
+    may vary from real life.
+
+    :return: The ration of citizens in all passengers.
+    """
     a = -1
     while a < 0 or a > 1:
         a = np.random.normal(0.6, 0.1, 1)
     return a
 
 
-def cleanup_float(f):
+def cleanup_float(f: float):
+    """
+    This function rounds any float to exactly one tenths.
+
+    :param f: The float to be processed.
+    :return: Rounded number from f
+    """
     return round(f*10)/10
 
 
-def initiate_booths(booths_list, count):
-    for i in range(1, count+1):
+def initiate_booths(booths_list: list, count: int) -> list:
+    """
+    This function will generate the specified number of booths.
+
+    :param booths_list: The list of booths that will be processed
+    :param count: The number of booths to be added to the list
+    :return: The new list of booths with added ones.
+    """
+    for j in range(1, count+1):
         booths_list.append(Booth(True, False))
     return booths_list
 
 
-def renew_booths(booths_list, booth_schedule, timespan):
+def renew_booths(booths_list, booth_schedule, timestamp):
+    """
+    This function is called when a new plan of booths is in use.
+
+    :param booths_list: The list of booths to be processed
+    :param booth_schedule: The new count of opened booths, as a list with number of booths opened for citizens and
+                            non-citizens, respectively.
+    :param timestamp: The timestamp, in 0.1 minutes, when the new plan is in effective.
+    :return: The processed list of booths with updated status.
+    """
     cit = 0
     non_cit = 0
     for each_booth in booths_list:
         if cit < booth_schedule[0]:
-            each_booth.open_booth(timespan)
+            each_booth.open_booth(timestamp)
             each_booth.change_to_citizen()
             cit += 1
         elif non_cit < booth_schedule[1]:
-            each_booth.open_booth(timespan)
+            each_booth.open_booth(timestamp)
             each_booth.change_to_non_citizen()
             non_cit += 1
         else:
@@ -325,8 +462,8 @@ def renew_booths(booths_list, booth_schedule, timespan):
 
 
 if __name__ == '__main__':
-    run = True
-    timespan = 0
+
+    # initiate variables
     citizen = Queue()
     non_citizen = Queue()
     flight_schedule = load_flight_data()
@@ -339,17 +476,27 @@ if __name__ == '__main__':
     booths = []
     booths_schedule = load_booths_data()
     initiate_booths(booths, 30)
-    for hour in range(0,24):
-        flights = Queue()
-        next_flight = None
+
+    # The main iteration that simulates a day of CBP
+    for hour in range(0, 24):
+        flights = Queue()   # The flights that will be received in this hour
+        next_flight = None  # The next flight that will arrive
+
+        # Add flights that will arrive in this hour to the queue
         if flight_schedule[hour] is not None:
             flights.enqueue_list(flight_schedule[hour])
             flight_count[hour] = flights.size()
             next_flight = flights.dequeue()
-        timespan = 0
+        timespan = 0    # The main controlling number that represents the current time, in minutes, with 0.1 increments.
+
+        # If there is a new plan for the booths, load it
         if booths_schedule[hour] is not None:
             booths = renew_booths(booths, booths_schedule[hour], timespan)
+
+        # Simulate each 0.1 minutes of current hour
         while timespan < 60.0:
+
+            # Load passengers to the queue if the flight has arrived.
             if next_flight is not None:
                 if next_flight.arrival_time.minute == timespan:
                     for i in range(1, next_flight.citizen_count):
@@ -359,43 +506,50 @@ if __name__ == '__main__':
                     total_passenger[hour] += next_flight.passenger_count
                     total_citizen[hour] += next_flight.citizen_count
                     total_non_citizen[hour] += next_flight.non_citizen_count
-                    if not flights.isEmpty():
+                    if not flights.is_empty():
                         next_flight = flights.dequeue()
                     else:
                         next_flight = None
+
+            # If a booth is available, process the next passenger in queue
             for booth in booths:
                 if timespan >= booth.next:
                     if booth.open:
                         if booth.process_citizen:
-                            if not citizen.isEmpty():
+                            if not citizen.is_empty():
                                 processing = citizen.dequeue()
                                 wait_time = booth.process_passenger(processing, timespan, hour)
                                 time_citizen[processing.flight.arrival_time.hour].append(wait_time)
                         else:
-                            if not non_citizen.isEmpty():
+                            if not non_citizen.is_empty():
                                 processing = non_citizen.dequeue()
                                 wait_time = booth.process_passenger(processing, timespan, hour)
                                 time_non_citizen[processing.flight.arrival_time.hour].append(wait_time)
+
+            # increment
             timespan += .1
             timespan = cleanup_float(timespan)
+
+    # If there are passengers not processed at the end of the day (23:59), continue processing until the line is
+    # cleared and no one is waiting.
     hour = 24
     timespan = 0
-    while not (citizen.isEmpty() and non_citizen.isEmpty()):
+    while not (citizen.is_empty() and non_citizen.is_empty()):
         print(hour)
-        if (timespan == 60):
+        if timespan == 60:
             timespan = 0
             hour += 1
         for booth in booths:
             if timespan >= booth.next:
                 if booth.open:
                     if booth.process_citizen:
-                        if not citizen.isEmpty():
+                        if not citizen.is_empty():
                             processing = citizen.dequeue()
                             wait_time = booth.process_passenger(processing, timespan, hour)
                             print(wait_time)
                             time_citizen[processing.flight.arrival_time.hour].append(wait_time)
                     else:
-                        if not non_citizen.isEmpty():
+                        if not non_citizen.is_empty():
                             processing = non_citizen.dequeue()
                             wait_time = booth.process_passenger(processing, timespan, hour)
                             time_non_citizen[processing.flight.arrival_time.hour].append(wait_time)
@@ -404,20 +558,25 @@ if __name__ == '__main__':
     print(time_citizen)
     print(time_non_citizen)
 
-    for hour in range(0,24):
+    # Print out the results in the similar way the CBP data is presented.
+    for hour in range(0, 24):
         if flight_count[hour] is not 0:
-            print("Between "+ str(hour) + " and " + str(hour+1) + " there are " + str(flight_count[hour]) + " flights arrived")
-            print("A total of " + str(total_passenger[hour]) + " passengers arrived, in which " + str(total_citizen[hour]) + " are citizens and " + str(total_non_citizen[hour]) + " are non-citizens")
+            print("Between " + str(hour) + " and " + str(hour + 1) + " there are "
+                  + str(flight_count[hour]) + " flights arrived")
+            print("A total of " + str(total_passenger[hour]) + " passengers arrived, in which " 
+                  + str(total_citizen[hour]) + " are citizens and "
+                  + str(total_non_citizen[hour]) + " are non-citizens")
             print("Average waiting time for U.S. citizens: "
-                  + str(cleanup_float(average_time(time_citizen[hour], total_citizen[hour]))))
+                  + str(average_time(time_citizen[hour], total_citizen[hour])))
             print("Maximum waiting time for U.S. citizens: "
                   + str(max_time(time_citizen[hour])))
             print("Average waiting time for non-U.S. citizens: "
-                  + str(cleanup_float(average_time(time_non_citizen[hour], total_non_citizen[hour]))))
+                  + str(average_time(time_non_citizen[hour], total_non_citizen[hour])))
             print("Maximum waiting time for non-U.S. citizens: "
                   + str(max_time(time_non_citizen[hour])))
             print("Average waiting time for all passengers: "
-                  + str(cleanup_float(average_time(time_non_citizen[hour] + time_citizen[hour], total_non_citizen[hour] + total_citizen[hour]))))
+                  + str(average_time(time_non_citizen[hour] + time_citizen[hour],
+                                     total_non_citizen[hour] + total_citizen[hour])))
             print("Maximum waiting time for all passengers: "
                   + str(max_time(time_non_citizen[hour] + time_citizen[hour])))
             print()
@@ -436,21 +595,7 @@ if __name__ == '__main__':
             print(str(sum(i > 120 for i in time_citizen[hour]) + sum(
                 i > 120 for i in time_non_citizen[hour])) + " passengers clear over 121 mins")
         else:
-            print("No flight arrived between "+ str(hour) + " and " + str(hour+1))
+            print("No flight arrived between " + str(hour) + " and " + str(hour+1))
         print(" ")
         print("-------------------------------------------------")
         print(" ")
-
-
-    # print("There are a total of % flights arrived".format(total_flight))
-    # print("A total of % passengers arrived, in which % are citizens and % are non-citizens"
-    #       .format(total_passenger, total_citizen, total_non_citizen))
-    # print("Maximum waiting time for U.S. citizens: " + average_time(time_citizen, total_citizen))
-    # print("Average waiting time for U.S. citizens: " + max_time(total_citizen))
-    # print("Maximum waiting time for non-U.S. citizens: " + average_time(time_non_citizen, total_non_citizen))
-    # print("Average waiting time for non-U.S. citizens: " + max_time(total_non_citizen))
-    # print("Maximum waiting time for all passengers: " + average_time(time_non_citizen + time_citizen,
-    #                                                                  total_non_citizen + total_citizen))
-    # print("Average waiting time for all passengers: " + max_time(time_non_citizen + time_citizen))
-
-

@@ -9,7 +9,14 @@ def load_flight_data() -> dict:
 
     :return: A dictionary with hour as key and a list of flights in that hour.
     '''
-    flight_schedule = initiate_dict_by_hour()
+    all_flights = initiate_dict_by_hour()
+    flights01 = []
+    flights01.append(Flight(datetime.time(1,13), 168))
+    flights01.append(Flight(datetime.time(1,26), 168))
+    all_flights[1] = flights01
+    flights03 = []
+    flights03.append(Flight(datetime.time(3,46), 146))
+    all_flights[3] = flights03
     flights13 = []
     flights13.append(Flight(datetime.time(13, 0), 300))
     flights13.append(Flight(datetime.time(13, 5), 300))
@@ -19,7 +26,7 @@ def load_flight_data() -> dict:
     flights13.append(Flight(datetime.time(13, 45), 350))
     flights13.append(Flight(datetime.time(13, 50), 250))
     flights13.append(Flight(datetime.time(13, 57), 150))
-    flight_schedule[13] = flights13
+    all_flights[13] = flights13
     flights14 = []
     flights14.append(Flight(datetime.time(14, 3), 300))
     flights14.append(Flight(datetime.time(14, 8), 300))
@@ -29,8 +36,17 @@ def load_flight_data() -> dict:
     flights14.append(Flight(datetime.time(14, 45), 350))
     flights14.append(Flight(datetime.time(14, 50), 250))
     flights14.append(Flight(datetime.time(14, 55), 150))
-    flight_schedule[14] = flights14
-    return flight_schedule
+    all_flights[14] = flights14
+    return all_flights
+
+
+def load_booths_data():
+    all_booths = initiate_dict_by_hour()
+    all_booths[1] = [5,6]
+    all_booths[3] = [2,2]
+    all_booths[13] = [13, 11]
+    all_booths[14] = [13, 10]
+    return all_booths
 
 
 def initiate_dict_by_hour(param_type=None) -> dict:
@@ -43,6 +59,7 @@ def initiate_dict_by_hour(param_type=None) -> dict:
         else:
             dictionary[hour] = None
     return dictionary
+
 
 class Passenger:
     '''
@@ -80,12 +97,12 @@ class Passenger:
         if self.is_citizen:
             a = -1
             while a<=0:
-                a = np.random.normal(0.6, 0.05)
+                a = np.random.normal(1.0, 0.5)
             return a
         else:
             a = -1
             while a <= 0:
-                a = np.random.normal(2.5,0.6)
+                a = np.random.normal(2.5, 0.4)
             return a
 
 
@@ -104,14 +121,23 @@ class Booth:
         self.process_citizen = processing_citizen
         self.next = next_time
 
-    def open_booth(self):
-        self.open = True
+    def open_booth(self, time):
+        if not self.open:
+            self.next = time
+            self.open = True
 
     def close_booth(self):
-        self.open = False
+        if self.open:
+            self.open = False
 
-    def process_passenger(self, passenger, timespan, current_hour):
-        next_time = passenger.process(timespan) + timespan
+    def change_to_citizen(self):
+        self.process_citizen = True
+
+    def change_to_non_citizen(self):
+        self.process_citizen = False
+
+    def process_passenger(self, passenger, time, current_hour):
+        next_time = passenger.process(time) + time
         if next_time >= 60:
             self.next = cleanup_float(next_time - 60)
         else:
@@ -169,9 +195,26 @@ def cleanup_float(f):
     return round(f*10)/10
 
 
-def initiate_booths(booths_list, count, process_citizen):
+def initiate_booths(booths_list, count):
     for i in range(1, count+1):
-        booths_list.append(Booth(process_citizen, True))
+        booths_list.append(Booth(True, False))
+    return booths_list
+
+
+def renew_booths(booths_list, booth_schedule, timespan):
+    cit = 0
+    non_cit = 0
+    for each_booth in booths_list:
+        if cit < booth_schedule[0]:
+            each_booth.open_booth(timespan)
+            each_booth.change_to_citizen()
+            cit += 1
+        elif non_cit < booth_schedule[1]:
+            each_booth.open_booth(timespan)
+            each_booth.change_to_non_citizen()
+            non_cit += 1
+        else:
+            each_booth.close_booth()
     return booths_list
 
 
@@ -188,8 +231,8 @@ if __name__ == '__main__':
     total_citizen = initiate_dict_by_hour(int)
     total_non_citizen = initiate_dict_by_hour(int)
     booths = []
-    initiate_booths(booths, 10, True)
-    initiate_booths(booths, 12, False)
+    booths_schedule = load_booths_data()
+    initiate_booths(booths, 30)
     for hour in range(0,24):
         flights = Queue()
         next_flight = None
@@ -198,10 +241,11 @@ if __name__ == '__main__':
             flight_count[hour] = flights.size()
             next_flight = flights.dequeue()
         timespan = 0
+        if booths_schedule[hour] is not None:
+            booths = renew_booths(booths, booths_schedule[hour], timespan)
         while timespan < 60.0:
             if next_flight is not None:
                 if next_flight.arrival_time.minute == timespan:
-
                     for i in range(1, next_flight.citizen_count):
                         citizen.enqueue(Passenger(next_flight, True))
                     for i in range(1, next_flight.non_citizen_count):
@@ -215,6 +259,25 @@ if __name__ == '__main__':
                         next_flight = None
             for booth in booths:
                 if timespan >= booth.next:
+                    if booth.open:
+                        if booth.process_citizen:
+                            if not citizen.isEmpty():
+                                processing = citizen.dequeue()
+                                wait_time = booth.process_passenger(processing, timespan, hour)
+                                time_citizen[processing.flight.arrival_time.hour].append(wait_time)
+                        else:
+                            if not non_citizen.isEmpty():
+                                processing = non_citizen.dequeue()
+                                wait_time = booth.process_passenger(processing, timespan, hour)
+                                time_non_citizen[processing.flight.arrival_time.hour].append(wait_time)
+            timespan += .1
+            timespan = cleanup_float(timespan)
+    timespan = 0
+    while not (citizen.isEmpty() and non_citizen.isEmpty()):
+        print(hour)
+        for booth in booths:
+            if timespan >= booth.next:
+                if booth.open:
                     if booth.process_citizen:
                         if not citizen.isEmpty():
                             processing = citizen.dequeue()
@@ -225,12 +288,12 @@ if __name__ == '__main__':
                             processing = non_citizen.dequeue()
                             wait_time = booth.process_passenger(processing, timespan, hour)
                             time_non_citizen[processing.flight.arrival_time.hour].append(wait_time)
-            timespan += .1
-            timespan = cleanup_float(timespan)
-
-
+        timespan += .1
+        timespan = cleanup_float(timespan)
+        hour += 1
     print(time_citizen)
     print(time_non_citizen)
+
     for hour in range(0,24):
         if flight_count[hour] is not 0:
             print("Between "+ str(hour) + " and " + str(hour+1) + " there are " + str(flight_count[hour]) + " flights arrived")
@@ -247,6 +310,21 @@ if __name__ == '__main__':
                   + str(cleanup_float(average_time(time_non_citizen[hour] + time_citizen[hour], total_non_citizen[hour] + total_citizen[hour]))))
             print("Maximum waiting time for all passengers: "
                   + str(max_time(time_non_citizen[hour] + time_citizen[hour])))
+            print()
+            print(str(sum(i <= 15 for i in time_citizen[hour]) + sum(
+                i <= 15 for i in time_citizen[1])) + " passengers clear between 0-15 mins")
+            print(str(sum(15 < i <= 30 for i in time_citizen[hour]) + sum(
+                15 < i <= 30 for i in time_citizen[1])) + " passengers clear between 16-30 mins")
+            print(str(sum(30 < i <= 45 for i in time_citizen[hour]) + sum(
+                30 < i <= 45 for i in time_citizen[1])) + " passengers clear between 31-45 mins")
+            print(str(sum(45 < i <= 60 for i in time_citizen[hour]) + sum(
+                45 < i <= 60 for i in time_citizen[1])) + " passengers clear between 46-60 mins")
+            print(str(sum(60 < i <= 90 for i in time_citizen[hour]) + sum(
+                60 < i <= 90 for i in time_citizen[1])) + " passengers clear between 61-90 mins")
+            print(str(sum(90 < i <= 120 for i in time_citizen[hour]) + sum(
+                90 < i <= 120 for i in time_citizen[1])) + " passengers clear between 91-120 mins")
+            print(str(sum(i > 120 for i in time_citizen[hour]) + sum(
+                i > 120 for i in time_citizen[1])) + " passengers clear over 121 mins")
         else:
             print("No flight arrived between "+ str(hour) + " and " + str(hour+1))
         print(" ")

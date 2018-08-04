@@ -401,7 +401,7 @@ def average_time(time: list, total_passengers: int) -> float:
     """
     if total_passengers == 0:
         return -1
-    elif len(time) is not total_passengers:
+    elif not len(time) == total_passengers:
         return -1
     return cleanup_float(sum(time)/total_passengers)
 
@@ -530,9 +530,9 @@ if __name__ == '__main__':
             # Load passengers to the queue if the flight has arrived.
             if next_flight is not None:
                 if next_flight.arrival_time.minute == timespan:
-                    for i in range(1, next_flight.citizen_count):
+                    for i in range(0, next_flight.citizen_count):
                         citizen.enqueue(Passenger(next_flight, True))
-                    for i in range(1, next_flight.non_citizen_count):
+                    for i in range(0, next_flight.non_citizen_count):
                         non_citizen.enqueue(Passenger(next_flight, False))
                     total_passenger[hour] += next_flight.passenger_count
                     total_citizen[hour] += next_flight.citizen_count
@@ -566,7 +566,6 @@ if __name__ == '__main__':
     hour = 24
     timespan = 0
     while not (citizen.is_empty() and non_citizen.is_empty()):
-        print(hour)
         if timespan == 60:
             timespan = 0
             hour += 1
@@ -577,7 +576,6 @@ if __name__ == '__main__':
                         if not citizen.is_empty():
                             processing = citizen.dequeue()
                             wait_time = booth.process_passenger(processing, timespan, hour)
-                            print(wait_time)
                             time_citizen[processing.flight.arrival_time.hour].append(wait_time)
                     else:
                         if not non_citizen.is_empty():
@@ -586,8 +584,6 @@ if __name__ == '__main__':
                             time_non_citizen[processing.flight.arrival_time.hour].append(wait_time)
         timespan += .1
         timespan = cleanup_float(timespan)
-    print(time_citizen)
-    print(time_non_citizen)
 
     # Print out the results in the similar way the CBP data is presented.
     for hour in range(0, 24):

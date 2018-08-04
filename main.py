@@ -146,13 +146,13 @@ def load_booths_data() -> dict:
     all_booths[10] = [7, 5]
     all_booths[11] = [11, 9]
     all_booths[12] = [8, 7]
-    all_booths[13] = [13, 11]
+    all_booths[13] = [12, 12]
     all_booths[14] = [12, 11]
     all_booths[15] = [13, 12]
     all_booths[16] = [14, 13]
     all_booths[17] = [8, 8]
-    all_booths[18] = [14, 12]
-    all_booths[19] = [10, 8]
+    all_booths[18] = [13, 13]
+    all_booths[19] = [9, 9]
     all_booths[20] = [6, 5]
     all_booths[21] = [7, 6]
     all_booths[22] = [5, 5]
@@ -167,6 +167,15 @@ def initiate_dict_by_hour(param_type=None) -> dict:
     :param param_type: The type that the empty dictionary will have by default. Type list for an empty list for each
                         hour; type int for 0 for each hour. By default each hour will be filled with None.
     :return: A dictionary with 24 keys representing 24 hours and default empty value of specified parameter type.
+    >>> new_dict = initiate_dict_by_hour()
+    >>> new_dict[0] is None
+    True
+    >>> new_dict = initiate_dict_by_hour(int)
+    >>> new_dict[0]
+    0
+    >>> new_dict = initiate_dict_by_hour(list)
+    >>> new_dict[0]
+    []
     """
     dictionary = {}
     for each_hour in range(0, 24):
@@ -382,10 +391,18 @@ def average_time(time: list, total_passengers: int) -> float:
 
     :param time: A list of waiting times.
     :param total_passengers: The number of passengers to be calculated.
-    :return: The average waiting time for the given group of passengers.
+    :return: The average waiting time for the given group of passengers. -1 if inputs are incorrect
+    >>> average_time([1,2,2,4,5], 5)
+    2.8
+    >>> average_time([], 0)
+    -1
+    >>> average_time([1,2,3], 1)
+    -1
     """
     if total_passengers == 0:
-        return 0
+        return -1
+    elif len(time) is not total_passengers:
+        return -1
     return cleanup_float(sum(time)/total_passengers)
 
 
@@ -395,6 +412,10 @@ def max_time(time: list):
 
     :param time: A list of waiting times.
     :return: The maximum value in the list
+    >>> max_time([1,2,2,4,5])
+    5
+    >>> max_time([1,1,1])
+    1
     """
     return max(time)
 
@@ -405,6 +426,8 @@ def get_citizen_ratio():
     may vary from real life.
 
     :return: The ration of citizens in all passengers.
+    >>> get_citizen_ratio() > 0
+    array([ True])
     """
     a = -1
     while a < 0 or a > 1:
@@ -418,6 +441,14 @@ def cleanup_float(f: float):
 
     :param f: The float to be processed.
     :return: Rounded number from f
+    >>> cleanup_float(1)
+    1.0
+    >>> cleanup_float(7.55)
+    7.6
+    >>> cleanup_float(7.54)
+    7.5
+    >>> cleanup_float(3.10000000000001)
+    3.1
     """
     return round(f*10)/10
 

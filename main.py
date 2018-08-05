@@ -42,6 +42,8 @@ def load_flight_data() -> dict:
     all_flights[11].append(Flight(datetime.time(11, 00), 253))
     all_flights[11].append(Flight(datetime.time(11, 22), 213))
     all_flights[11].append(Flight(datetime.time(11, 35), 199))
+    # Adding an A380 arriving at this time
+    # all_flights[11].append(Flight(datetime.time(11, 45), 523))
     all_flights[12] = []
     all_flights[12].append(Flight(datetime.time(12, 8), 174))
     all_flights[12].append(Flight(datetime.time(12, 14), 126))
@@ -235,12 +237,17 @@ class Passenger:
             a = -1
             while a <= 0:
                 a = np.random.normal(0.6, 0.15)
+
+                # an inefficient distribution
+                # a = np.random.normal(0.7, 0.2)
             return a
         else:
             a = -1
             while a <= 0:
-                # a = random.choice([np.random.normal(0.8, 0.25),np.random.normal(1.5, 0.4)])
                 a = np.random.normal(1.0, 0.5)
+
+                # an inefficient distribution
+                # a = np.random.normal(0.8, 1.0)
             return a
 
 
@@ -431,7 +438,13 @@ def get_citizen_ratio():
     """
     a = -1
     while a < 0 or a > 1:
-        a = np.random.normal(0.6, 0.1, 1)
+        a = np.random.normal(0.6, 0.1)
+
+        # more non-citizens
+        # a = np.random.normal(0.5, 0.15)
+
+        # more citizens
+        # a = np.random.normal(0.7, 0.08)
     return a
 
 
@@ -590,7 +603,7 @@ if __name__ == '__main__':
         if flight_count[hour] is not 0:
             print("Between " + str(hour) + " and " + str(hour + 1) + " there are "
                   + str(flight_count[hour]) + " flights arrived")
-            print("A total of " + str(total_passenger[hour]) + " passengers arrived, in which " 
+            print("A total of " + str(total_passenger[hour]) + " passengers arrived, of which "
                   + str(total_citizen[hour]) + " are citizens and "
                   + str(total_non_citizen[hour]) + " are non-citizens")
             print("Average waiting time for U.S. citizens: "

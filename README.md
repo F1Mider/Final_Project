@@ -48,6 +48,10 @@ Second, with the presence of automated systems, many passengers should be using 
 This factor is not yet considered. Therefore, in peak hours, no passenger can get through the line within 15 minutes.
 In the real world, there are passengers who can do so.
 
+Third, there are cases when some citizens are queueing together with non-citizens. For example, with two passengers
+travelling together, they might stay in the same line for non-citizen despite one of them can wait on the citizens'
+side. This could explain the similar numbers observed in maximum waiting time.
+
 It turned out that with the predicted processing time and proportion of booths, the waiting time is less than real data
 during off-peak hours, and longer in peak hours. The line, especially the non-citizen one, tend to pile up when a
 significant amount of flights arrive.
